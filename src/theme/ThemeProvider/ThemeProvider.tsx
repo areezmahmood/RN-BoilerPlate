@@ -4,7 +4,7 @@ import type {
 } from '@/theme/types/config';
 import type { ComponentTheme, Theme } from '@/theme/types/theme';
 import type { PropsWithChildren } from 'react';
-import type { MMKV } from 'react-native-mmkv';
+import type { MMKVInstance } from 'react-native-mmkv-storage';
 
 import { DarkTheme, DefaultTheme } from '@react-navigation/native';
 import {
@@ -42,28 +42,31 @@ type Context = {
 export const ThemeContext = createContext<Context | undefined>(undefined);
 
 type Properties = PropsWithChildren<{
-  readonly storage: MMKV;
+  readonly storage: MMKVInstance;
 }>;
 
 function ThemeProvider({ children = false, storage }: Properties) {
   // Current theme variant
-  const [variant, setVariant] = useState(
-    (storage.getString('theme') ?? 'default') as Variant,
-  );
+  const [variant, setVariant] = useState<Variant>('default');
 
   // Initialize theme at default if not defined
   useEffect(() => {
-    const appHasThemeDefined = storage.contains('theme');
-    if (!appHasThemeDefined) {
-      storage.set('theme', 'default');
-      setVariant('default');
-    }
+    const initTheme = async () => {
+      const storedTheme = await storage.getStringAsync('theme');
+      if (!storedTheme) {
+        await storage.setStringAsync('theme', 'default');
+        setVariant('default');
+      } else {
+        setVariant(storedTheme as Variant);
+      }
+    };
+    initTheme();
   }, [storage]);
 
   const changeTheme = useCallback(
-    (nextVariant: Variant) => {
+    async (nextVariant: Variant) => {
       setVariant(nextVariant);
-      storage.set('theme', nextVariant);
+      await storage.setStringAsync('theme', nextVariant);
     },
     [storage],
   );

@@ -8,6 +8,7 @@ import { Paths } from '@/navigation/paths';
 import { useTheme } from '@/theme';
 
 import { Example, Startup } from '@/screens';
+import { Toasts } from '@backpackapp-io/react-native-toast';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -22,6 +23,19 @@ function ApplicationNavigator() {
           <Stack.Screen component={Example} name={Paths.Example} />
         </Stack.Navigator>
       </NavigationContainer>
+      <Toasts
+        defaultStyle={{
+          view: {
+            backgroundColor: variant === 'dark' ? '#212331' : '#f7f7f7',
+          },
+          pressable: {
+            backgroundColor: variant === 'dark' ? '#212331' : 'f7f7f7',
+          },
+          text: {
+            color: variant === 'dark' ? 'white' : 'black',
+          },
+        }}
+      />
     </SafeAreaProvider>
   );
 }
